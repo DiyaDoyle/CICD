@@ -3,26 +3,31 @@ pipeline {
 
     environment {
         VENV = "venv"
+        PYTHON = "python"   // use system python in PATH
     }
 
     stages {
-        stage('Clone GitHub Repo') {
+        stage('Checkout') {
             steps {
                 git branch: 'main', credentialsId: 'github-https', url: 'https://github.com/DiyaDoyle/CICD.git'
             }
         }
 
-        stage('Set Up Python Virtual Environment') {
+        stage('Setup Virtual Environment') {
             steps {
-                bat '"C:\\Users\\your-username\\AppData\\Local\\Programs\\Python\\Python310\\python.exe" -m venv venv'
-                bat '.\\venv\\Scripts\\python.exe -m pip install --upgrade pip'
-                bat '.\\venv\\Scripts\\pip install flask pandas numpy tensorflow' 
+                dir('Pipelining_pythonApp') {
+                    bat "${env.PYTHON} -m venv ${env.VENV}"
+                    bat ".\\${env.VENV}\\Scripts\\python.exe -m pip install --upgrade pip"
+                    bat ".\\${env.VENV}\\Scripts\\pip install -r requirements.txt"
+                }
             }
         }
 
         stage('Run Flask App') {
             steps {
-                bat '.\\venv\\Scripts\\python app.py'
+                dir('Pipelining_pythonApp') {
+                    bat ".\\${env.VENV}\\Scripts\\python.exe app.py"
+                }
             }
         }
     }
