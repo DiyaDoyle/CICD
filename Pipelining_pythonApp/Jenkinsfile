@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         VENV = "venv"
-        PYTHON = "python"   // use system python in PATH
+        PYTHON = "python"   // assumes python is in PATH on Windows
     }
 
     stages {
@@ -15,19 +15,17 @@ pipeline {
 
         stage('Setup Virtual Environment') {
             steps {
-                dir('Pipelining_pythonApp') {
-                    bat "${env.PYTHON} -m venv ${env.VENV}"
-                    bat ".\\${env.VENV}\\Scripts\\python.exe -m pip install --upgrade pip"
-                    bat ".\\${env.VENV}\\Scripts\\pip install -r requirements.txt"
-                }
+                bat "${env.PYTHON} -m venv ${env.VENV}"
+                bat ".\\${env.VENV}\\Scripts\\python.exe -m pip install --upgrade pip"
+                // If you add requirements.txt later, uncomment this line
+                // bat ".\\${env.VENV}\\Scripts\\pip install -r requirements.txt"
+                bat ".\\${env.VENV}\\Scripts\\pip install flask pandas numpy tensorflow"
             }
         }
 
         stage('Run Flask App') {
             steps {
-                dir('Pipelining_pythonApp') {
-                    bat ".\\${env.VENV}\\Scripts\\python.exe app.py"
-                }
+                bat ".\\${env.VENV}\\Scripts\\python.exe app.py"
             }
         }
     }
